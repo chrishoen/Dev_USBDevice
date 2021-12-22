@@ -11,7 +11,8 @@ project ("Dev_USBDevice")
 my_init_global_import_variables()
 my_init_post_build_variables()
 
-add_subdirectory ("serialmaster")
+add_subdirectory ("serialslave")
+add_subdirectory ("cdhdemulator")
 return()
 
 add_subdirectory ("motorcon")
