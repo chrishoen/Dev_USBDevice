@@ -20,6 +20,8 @@
 #include <sys/stat.h>
 #include <linux/serial.h>
 
+#include "someUSBDeviceParms.h"
+
 #define  _SLAVETHREAD_CPP_
 #include "SlaveThread.h"
 
@@ -98,7 +100,7 @@ restart:
    }
 
    // Open the device.
-   mPortFd = open(cPortDev, O_RDWR, S_IRUSR | S_IWUSR);
+   mPortFd = open(Some::gUSBDeviceParms.mDeviceDevPath, O_RDWR, S_IRUSR | S_IWUSR);
    if (mPortFd < 0)
    {
       Prn::print(Prn::Show1, "Slave open FAIL 101");

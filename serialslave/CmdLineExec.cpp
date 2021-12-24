@@ -1,6 +1,8 @@
 #include "stdafx.h"
 
 #include "SlaveThread.h"
+#include "someUSBDeviceParms.h"
+
 #include "CmdLineExec.h"
 
 //******************************************************************************
@@ -97,6 +99,9 @@ void CmdLineExec::executeGo5(Ris::CmdLineCmd* aCmd)
 
 void CmdLineExec::executeParms(Ris::CmdLineCmd* aCmd)
 {
+   Some::gUSBDeviceParms.reset();
+   Some::gUSBDeviceParms.readSection("default");
+   Some::gUSBDeviceParms.show();
 }
 
 //******************************************************************************

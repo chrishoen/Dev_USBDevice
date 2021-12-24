@@ -1,7 +1,6 @@
 #pragma once
 
 /*==============================================================================
-Prototype communications message classes.
 Parameters class whose values are read from a command file. 
 ==============================================================================*/
 
@@ -15,7 +14,7 @@ Parameters class whose values are read from a command file.
 //******************************************************************************
 //******************************************************************************
 
-namespace ProtoComm
+namespace Some
 {
 
 //******************************************************************************
@@ -47,7 +46,7 @@ namespace ProtoComm
 // structure. If so, then this class is the root.
 // 
 
-class SerialSettings : public Ris::BaseCmdLineParms
+class USBDeviceParms : public Ris::BaseCmdLineParms
 {
 public:
 
@@ -56,17 +55,24 @@ public:
    //***************************************************************************
    // Constants.
 
-   static const int cMaxStringSize = 30;
+   static const int cMaxStringSize = 100;
 
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
-   // Members. Read from paramaters file.
+   // Members.
 
-   // Serial setup and port.
-   char mSerialPortDevice[cMaxStringSize];
-   char mSerialPortSetup[cMaxStringSize];
-   int  mSerialRxTimeout;
+   // Device path.
+   char mDeviceDevPath[cMaxStringSize];
+
+   // Delays.
+   int  mDelay1;
+   int  mDelay2;
+
+   //***************************************************************************
+   //***************************************************************************
+   //***************************************************************************
+   // Members.
 
    //***************************************************************************
    //***************************************************************************
@@ -76,11 +82,11 @@ public:
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
-   // Methods.
+   // Infrastucture.
 
    // Constructor,
    typedef Ris::BaseCmdLineParms BaseClass;
-   SerialSettings();
+   USBDeviceParms();
    void reset();
    void show();
 
@@ -99,10 +105,10 @@ public:
 //******************************************************************************
 // Global instance.
 
-#ifdef _PROCOSERIALSETTINGS_CPP_
-   SerialSettings gSerialSettings;
+#ifdef _SOMEUSBDEVICEPARMS_CPP_
+   USBDeviceParms gUSBDeviceParms;
 #else
-   extern SerialSettings gSerialSettings;
+   extern USBDeviceParms gUSBDeviceParms;
 #endif
 
 //******************************************************************************

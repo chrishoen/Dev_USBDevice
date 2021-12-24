@@ -7,6 +7,9 @@ my_add_compile_options (serialslave)
 my_add_pch (serialslave)
 
 my_inc_import_RisLib(serialslave)
+my_inc_import_CommonLib(serialslave)
+
+my_lib_import_CommonLib(serialslave)
 my_lib_import_RisLib(serialslave)
 
 my_post_build_bin(serialslave)
