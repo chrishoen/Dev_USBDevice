@@ -40,6 +40,7 @@ SlaveThread::SlaveThread()
    BaseClass::setThreadPriorityHigh();
 
    // Initialize variables.
+   strcpy(mPortPath, Some::gUSBDeviceParms.mDeviceDevPath);
    mPortFd = -1;
    mEventFd = -1;
    mRxBuffer[0] = 0;
@@ -71,13 +72,19 @@ void SlaveThread::threadInitFunction()
 
 void SlaveThread::threadRunFunction()
 {
+   // Top of the loop.
+   mRestartCount = 0;
 restart:
    // Guard.
    if (mTerminateFlag) return;
 
    // Sleep.
-   BaseClass::threadSleep(1000);
-   Prn::print(Prn::Show1, "Slave restart %d", mRestartCount++);
+   if (mRestartCount)
+   {
+      BaseClass::threadSleep(1000);
+   }
+   Prn::print(Prn::Show1, "Slave restart %d %s", mRestartCount, mPortPath);
+   mRestartCount++;
 
    //***************************************************************************
    //***************************************************************************
@@ -100,7 +107,7 @@ restart:
    }
 
    // Open the device.
-   mPortFd = open(Some::gUSBDeviceParms.mDeviceDevPath, O_RDWR, S_IRUSR | S_IWUSR);
+   mPortFd = open(mPortPath, O_RDWR, S_IRUSR | S_IWUSR);
    if (mPortFd < 0)
    {
       Prn::print(Prn::Show1, "Slave open FAIL 101");
