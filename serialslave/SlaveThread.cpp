@@ -136,7 +136,7 @@ restart:
 
    while (!BaseClass::mTerminateFlag)
    {
-      Prn::print(Prn::Show1, "Slave read start********************************************** %d", mRxCount++);
+      Prn::print(Prn::Show4, "Slave read start********************************************** %d", mRxCount++);
 
       //************************************************************************
       //************************************************************************
@@ -166,7 +166,7 @@ restart:
          return;
       }
 
-      // Read a request. 
+      // Read a string. 
       tRet = read(mPortFd, mRxBuffer, 200);
       if (tRet < 0)
       {
@@ -178,7 +178,13 @@ restart:
          Prn::print(Prn::Show1, "Slave read EMPTY");
          goto restart;
       }
-      Prn::print(Prn::Show1, "Slave <<<<<<<<< %d", tRet);
+      // Null terminate.
+      mRxBuffer[tRet] = 0;
+
+      // Print.
+      Prn::print(Prn::Show1, "Slave read OUT <<<<<<<<<< %2d %d %s",
+         tRet, my_trimCRLF(mRxBuffer), mRxBuffer);
+
    }
 }
 
@@ -258,7 +264,12 @@ void SlaveThread::sendString(const char* aString)
       return;
    }
 
-   Prn::print(Prn::Show1, "Slave write %d", tNumBytes);
+   // Print.
+   char tTxBuffer[100];
+   strcpy(tTxBuffer, aString);
+   Prn::print(Prn::Show1, "Slave write IN >>>>>>>>>> %2d %d %s",
+      tNumBytes, my_trimCRLF(tTxBuffer), tTxBuffer);
+
    return;
 }
 

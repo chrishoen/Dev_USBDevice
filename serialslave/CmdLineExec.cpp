@@ -47,10 +47,9 @@ void CmdLineExec::executeSend(Ris::CmdLineCmd* aCmd)
 {
    aCmd->setArgDefault(1, "ABCDEFGH");
    char tString[100];
-   sprintf(tString, "%s\n", aCmd->argString(1));
+   sprintf(tString, "%s\r\n", aCmd->argString(1));
    int tNumBytes = strlen(tString);
    gSlaveThread->sendString(tString);
-   Prn::print(0, "send %d", tNumBytes);
 }
 
 //******************************************************************************
