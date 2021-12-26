@@ -47,7 +47,8 @@ void CmdLineExec::executeSend(Ris::CmdLineCmd* aCmd)
 {
    aCmd->setArgDefault(1, "ABCDEFGH");
    char tString[100];
-   sprintf(tString, "%s\r\n", aCmd->argString(1));
+   sprintf(tString, "%s\r\n", aCmd->argWhole());
+   my_string_toupper(tString);
    int tNumBytes = strlen(tString);
    gSlaveThread->sendString(tString);
 }
