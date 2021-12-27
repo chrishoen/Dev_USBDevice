@@ -1,8 +1,7 @@
 #include "stdafx.h"
 
-#include "SlaveThread.h"
 #include "someUSBDeviceParms.h"
-
+#include "SlaveThread.h"
 #include "CmdLineExec.h"
 
 //******************************************************************************
@@ -45,11 +44,16 @@ void CmdLineExec::execute(Ris::CmdLineCmd* aCmd)
 
 void CmdLineExec::executeSend(Ris::CmdLineCmd* aCmd)
 {
-   aCmd->setArgDefault(1, "ABCDEFGH");
    char tString[100];
-   sprintf(tString, "%s\r\n", aCmd->argWhole());
-   my_string_toupper(tString);
-   int tNumBytes = strlen(tString);
+   if (aCmd->numArg() == 0)
+   {
+      strcpy(tString, "ABCDEFGH\n");
+   }
+   else
+   {
+      sprintf(tString, "%s\r\n", aCmd->argWhole());
+      my_string_toupper(tString);
+   }
    gSlaveThread->sendString(tString);
 }
 
