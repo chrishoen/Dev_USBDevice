@@ -35,6 +35,12 @@ public:
    //***************************************************************************
    // Members.
 
+   // Thread instance number.
+   int mNum;
+
+   // Thread instance name.
+   char mName[32];
+
    // File path for usb port.
    char mPortPath[64];
 
@@ -58,7 +64,7 @@ public:
    // Methods.
 
    // Constructor.
-   SlaveThread();
+   SlaveThread(int aNum);
 
    //***************************************************************************
    //***************************************************************************
@@ -100,9 +106,11 @@ public:
 // Global instance.
 
 #ifdef _SLAVETHREAD_CPP_
-           SlaveThread* gSlaveThread = 0;
+SlaveThread* gSlaveThread1 = 0;
+SlaveThread* gSlaveThread2 = 0;
 #else
-   extern  SlaveThread* gSlaveThread;
+extern  SlaveThread* gSlaveThread1;
+extern  SlaveThread* gSlaveThread2;
 #endif
 
 //******************************************************************************

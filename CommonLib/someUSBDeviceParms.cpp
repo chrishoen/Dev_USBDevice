@@ -41,7 +41,10 @@ void USBDeviceParms::reset()
       BaseClass::setFilePath("/opt/prime/files/USBDevice_Parms.txt");
    }
 
-   mDeviceDevPath[0]=0;
+   mDeviceDevPath1[0] = 0;
+   mDeviceDevPath2[0] = 0;
+   mEnable1 = false;
+   mEnable2 = false;
    mDelay1 = 0;
    mDelay2 = 0;
 }
@@ -57,7 +60,10 @@ void USBDeviceParms::show()
    printf("USBDeviceParms************************************************ %s\n", mTargetSection);
 
    printf("\n");
-   printf("DeviceDevPath            %-10s\n", mDeviceDevPath);
+   printf("DeviceDevPath1           %-10s\n", mDeviceDevPath1);
+   printf("DeviceDevPath2           %-10s\n", mDeviceDevPath2);
+   printf("Enable1                  %-10s\n", my_string_from_bool(mEnable1));
+   printf("Enable2                  %-10s\n", my_string_from_bool(mEnable2));
    printf("Delay1                   %-10d\n", mDelay1);
    printf("Delay2                   %-10d\n", mDelay2);
 }
@@ -73,7 +79,10 @@ void USBDeviceParms::execute(Ris::CmdLineCmd* aCmd)
 {
    if (!isTargetSection(aCmd)) return;
 
-   if (aCmd->isCmd("DeviceDevPath"))         aCmd->copyArgString(1, mDeviceDevPath, cMaxStringSize);
+   if (aCmd->isCmd("DeviceDevPath1"))        aCmd->copyArgString(1, mDeviceDevPath1, cMaxStringSize);
+   if (aCmd->isCmd("DeviceDevPath2"))        aCmd->copyArgString(1, mDeviceDevPath2, cMaxStringSize);
+   if (aCmd->isCmd("Enable1"))               mEnable1 = aCmd->argBool(1);
+   if (aCmd->isCmd("Enable2"))               mEnable2 = aCmd->argBool(1);
    if (aCmd->isCmd("Delay1"))                mDelay1 = aCmd->argInt(1);
    if (aCmd->isCmd("Delay2"))                mDelay2 = aCmd->argInt(1);
 }

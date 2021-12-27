@@ -5,6 +5,7 @@
 #include "risCmdLineConsole.h"
 #include "CmdLineExec.h"
 
+#include "someUSBDeviceParms.h"
 #include "SlaveThread.h"
 
 //******************************************************************************
@@ -25,8 +26,16 @@ int main(int argc,char** argv)
    //***************************************************************************
    // Launch program threads.
 
-   gSlaveThread = new SlaveThread;
-   gSlaveThread->launchThread();
+   if (Some::gUSBDeviceParms.mEnable1)
+   {
+      gSlaveThread1 = new SlaveThread(1);
+      gSlaveThread1->launchThread();
+   }
+   if (Some::gUSBDeviceParms.mEnable2)
+   {
+      gSlaveThread2 = new SlaveThread(2);
+      gSlaveThread2->launchThread();
+   }
 
    //***************************************************************************
    //***************************************************************************
@@ -34,7 +43,8 @@ int main(int argc,char** argv)
    // Show program threads.
 
    Ris::Threads::showCurrentThreadInfo();
-   if (gSlaveThread)    gSlaveThread->showThreadInfo();
+   if (gSlaveThread1)    gSlaveThread1->showThreadInfo();
+   if (gSlaveThread2)    gSlaveThread2->showThreadInfo();
 
    //***************************************************************************
    //***************************************************************************
@@ -50,17 +60,23 @@ int main(int argc,char** argv)
    //***************************************************************************
    // Shutdown program threads.
 
-   if (gSlaveThread)     gSlaveThread->shutdownThread();
+   if (gSlaveThread1)     gSlaveThread1->shutdownThread();
+   if (gSlaveThread2)     gSlaveThread2->shutdownThread();
 
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
    // Delete program threads.
 
-   if (gSlaveThread)
+   if (gSlaveThread1)
    {
-      delete gSlaveThread;
-      gSlaveThread = 0;
+      delete gSlaveThread1;
+      gSlaveThread1 = 0;
+   }
+   if (gSlaveThread2)
+   {
+      delete gSlaveThread2;
+      gSlaveThread2 = 0;
    }
 
    //***************************************************************************

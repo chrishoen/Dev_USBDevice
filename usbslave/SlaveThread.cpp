@@ -30,17 +30,30 @@
 //******************************************************************************
 // Constructor.
 
-SlaveThread::SlaveThread()
+SlaveThread::SlaveThread(int aNum)
 {
-   // Set base class thread services.
-   BaseClass::setThreadName("Slave");
+   // Instance variables.
+   mNum = aNum;
+   sprintf(mName, "Slave%d", mNum);
+
+   // Set base class variables.
+   BaseClass::setThreadName(mName);
    BaseClass::setThreadPriorityHigh();
 
    // Set base class thread priority.
    BaseClass::setThreadPriorityHigh();
 
    // Initialize variables.
-   strcpy(mPortPath, Some::gUSBDeviceParms.mDeviceDevPath);
+   strcpy(mPortPath, Some::gUSBDeviceParms.mDeviceDevPath1);
+   if (mNum == 1)
+   {
+      strcpy(mPortPath, Some::gUSBDeviceParms.mDeviceDevPath1);
+   }
+   else
+   {
+      strcpy(mPortPath, Some::gUSBDeviceParms.mDeviceDevPath2);
+   }
+
    mPortFd = -1;
    mEventFd = -1;
    mRxBuffer[0] = 0;
@@ -57,8 +70,6 @@ SlaveThread::SlaveThread()
 
 void SlaveThread::threadInitFunction()
 {
-   printf("SlaveThread::threadInitFunction\n");
-
    // Open the event.
    mEventFd = eventfd(0, EFD_SEMAPHORE);
 }
@@ -83,7 +94,7 @@ restart:
    {
       BaseClass::threadSleep(1000);
    }
-   Prn::print(Prn::Show1, "Slave restart %d %s", mRestartCount, mPortPath);
+   Prn::print(Prn::Show1, "%s restart %d %s", mName, mRestartCount, mPortPath);
    mRestartCount++;
 
    //***************************************************************************
@@ -101,7 +112,7 @@ restart:
    // If the device is open then close it.
    if (mPortFd > 0)
    {
-      Prn::print(Prn::Show1, "Slave close");
+      Prn::print(Prn::Show1, "%s close",mName);
       close(mPortFd);
       mPortFd = -1;
    }
@@ -110,7 +121,7 @@ restart:
    mPortFd = open(mPortPath, O_RDWR, S_IRUSR | S_IWUSR);
    if (mPortFd < 0)
    {
-      Prn::print(Prn::Show1, "Slave open FAIL 101");
+      Prn::print(Prn::Show1, "%s open FAIL 101", mName);
       goto restart;
    }
 
@@ -123,11 +134,11 @@ restart:
 
    if (tcsetattr(mPortFd, TCSANOW, &tOptions) < 0)
    {
-      Prn::print(Prn::Show1, "Slave open FAIL 102");
+      Prn::print(Prn::Show1, "%s open FAIL 102", mName);
       goto restart;
    }
 
-   Prn::print(Prn::Show1, "Slave open");
+   Prn::print(Prn::Show1, "%s open", mName);
 
    //***************************************************************************
    //***************************************************************************
@@ -136,7 +147,7 @@ restart:
 
    while (!BaseClass::mTerminateFlag)
    {
-      Prn::print(Prn::Show4, "Slave read start********************************************** %d", mRxCount++);
+      Prn::print(Prn::Show4, "%s read start********************************************** %d", mName, mRxCount++);
 
       //************************************************************************
       //************************************************************************
@@ -155,14 +166,14 @@ restart:
       tRet = poll(&tPollFd[0], 2, -1);
       if (tRet < 0)
       {
-         Prn::print(Prn::Show1, "Slave poll FAIL");
+         Prn::print(Prn::Show1, "%s poll FAIL", mName);
          goto restart;
       }
 
       // Test for abort.
       if (tPollFd[1].revents & POLLIN)
       {
-         Prn::print(Prn::Show1, "Slave read abort");
+         Prn::print(Prn::Show1, "%s read abort", mName);
          return;
       }
 
@@ -170,19 +181,19 @@ restart:
       tRet = read(mPortFd, mRxBuffer, 200);
       if (tRet < 0)
       {
-         Prn::print(Prn::Show1, "Slave read FAIL");
+         Prn::print(Prn::Show1, "%s read FAIL", mName);
          goto restart;
       }
       if (tRet == 0)
       {
-         Prn::print(Prn::Show1, "Slave read EMPTY");
+         Prn::print(Prn::Show1, "%s read EMPTY", mName);
          goto restart;
       }
       // Null terminate.
       mRxBuffer[tRet] = 0;
 
       // Print.
-      Prn::print(Prn::Show1, "Slave read OUT <<<<<<<<<< %2d %d %s",
+      Prn::print(Prn::Show1, "%s read OUT <<<<<<<<<< %2d %d %s", mName,
          tRet, my_trimCRLF(mRxBuffer), mRxBuffer);
 
    }
@@ -196,7 +207,7 @@ restart:
 
 void SlaveThread::threadExitFunction()
 {
-   printf("SlaveThread::threadExitFunction\n");
+   printf("%sThread::threadExitFunction\n", mName);
 }
 
 //******************************************************************************
@@ -207,7 +218,7 @@ void SlaveThread::threadExitFunction()
 
 void SlaveThread::shutdownThread()
 {
-   printf("SlaveThread::shutdownThread\n");
+   printf("%sThread::shutdownThread\n", mName);
 
    // Request thread run function return.
    mTerminateFlag = true;
@@ -223,7 +234,7 @@ void SlaveThread::shutdownThread()
    // Close the device if it is open.
    if (mPortFd > 0)
    {
-      Prn::print(Prn::Show1, "Slave close");
+      Prn::print(Prn::Show1, "%s close", mName);
       close(mPortFd);
       mPortFd = -1;
    }
@@ -254,20 +265,20 @@ void SlaveThread::sendString(const char* aString)
    // Test the return code.
    if (tRet < 0)
    {
-      Prn::print(Prn::Show1, "Slave write FAIL 101 %d", errno);
+      Prn::print(Prn::Show1, "%s write FAIL 101 %d", mName, errno);
       return;
    }
 
    if (tRet != tNumBytes)
    {
-      Prn::print(Prn::Show1, "Slave write FAIL 102");
+      Prn::print(Prn::Show1, "%s write FAIL 102", mName);
       return;
    }
 
    // Print.
    char tTxBuffer[100];
    strcpy(tTxBuffer, aString);
-   Prn::print(Prn::Show1, "Slave write IN >>>>>>>>>> %2d %d %s",
+   Prn::print(Prn::Show1, "%s write IN >>>>>>>>>> %2d %d %s", mName,
       tNumBytes, my_trimCRLF(tTxBuffer), tTxBuffer);
 
    return;
