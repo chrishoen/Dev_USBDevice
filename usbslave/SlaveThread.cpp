@@ -235,7 +235,7 @@ void SlaveThread::shutdownThread()
 //******************************************************************************
 //******************************************************************************
 //******************************************************************************
-// Send a null terminated string via the serial port. A newline terminator
+// Send a null terminated string via the usb port. A newline terminator
 // is appended to the string before transmission. This executes in the
 // context of the calling thread.
 
