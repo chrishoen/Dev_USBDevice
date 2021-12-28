@@ -60,6 +60,7 @@ void USBDeviceParms::show()
    printf("USBDeviceParms************************************************ %s\n", mTargetSection);
 
    printf("\n");
+   printf("DeviceDevPath            %-10s\n", mDeviceDevPath);
    printf("DeviceDevPath1           %-10s\n", mDeviceDevPath1);
    printf("DeviceDevPath2           %-10s\n", mDeviceDevPath2);
    printf("Enable1                  %-10s\n", my_string_from_bool(mEnable1));
@@ -79,6 +80,7 @@ void USBDeviceParms::execute(Ris::CmdLineCmd* aCmd)
 {
    if (!isTargetSection(aCmd)) return;
 
+   if (aCmd->isCmd("DeviceDevPath"))         aCmd->copyArgString(1, mDeviceDevPath, cMaxStringSize);
    if (aCmd->isCmd("DeviceDevPath1"))        aCmd->copyArgString(1, mDeviceDevPath1, cMaxStringSize);
    if (aCmd->isCmd("DeviceDevPath2"))        aCmd->copyArgString(1, mDeviceDevPath2, cMaxStringSize);
    if (aCmd->isCmd("Enable1"))               mEnable1 = aCmd->argBool(1);

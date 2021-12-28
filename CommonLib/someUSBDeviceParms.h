@@ -63,6 +63,7 @@ public:
    // Members.
 
    // Device path.
+   char mDeviceDevPath[cMaxStringSize];
    char mDeviceDevPath1[cMaxStringSize];
    char mDeviceDevPath2[cMaxStringSize];
 
