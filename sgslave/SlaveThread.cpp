@@ -20,6 +20,7 @@
 #include <sys/stat.h>
 #include <linux/serial.h>
 
+#include "sgMessage.h"
 #include "someUSBDeviceParms.h"
 
 #define  _SLAVETHREAD_CPP_
@@ -190,9 +191,23 @@ restart:
       // Metrics.
       mRxCount++;
 
-      // Print binary.
+      // Print.
       Prn::print(Prn::Show1, "SGSLave read OUT <<<<<<<<<< %2d %3d",
          mRxCount, mRxLength);
+
+      // Print.
+      SG::showDefaultPacket((SG::UsbDefaultPacket_t*)&mRxBuffer[0]);
+
+      // Process the receive buffer, generate a response
+      // in the transmit buffer.
+      mCmdExec.doProcess(
+         mRxBuffer,      // Input
+         mRxLength,      // Input
+         mTxBuffer,      // Output
+         &mTxLength);    // Output
+
+      // Send the response.
+      sendBytes(mTxBuffer, mTxLength);
    }
 }
 
@@ -249,6 +264,7 @@ void SlaveThread::sendBytes(const void* aBytes, int aNumBytes)
 {
    // Guard.
    if (mPortFd < 0) return;
+   if (aNumBytes <= 0) return;
 
    // Metrics.
    mTxCount++;
