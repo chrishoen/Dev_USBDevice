@@ -144,7 +144,7 @@ restart:
       //************************************************************************
       //************************************************************************
       //************************************************************************
-      // Read from port.
+      // Read from port into the receive buffer.
 
       // Blocking poll for read or abort.
       struct pollfd tPollFd[2];
@@ -181,6 +181,12 @@ restart:
          Prn::print(Prn::Show1, "SGSLave read EMPTY");
          goto restart;
       }
+
+      //************************************************************************
+      //************************************************************************
+      //************************************************************************
+      // Process the receive buffer. Decode the received message.
+      // Send a response.
 
       // No errors.
       mRxLength = tRet;
