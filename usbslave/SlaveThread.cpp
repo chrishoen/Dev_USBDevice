@@ -57,9 +57,12 @@ SlaveThread::SlaveThread(int aNum)
    mPortFd = -1;
    mEventFd = -1;
    mRxBuffer[0] = 0;
+   mRxLength = 0;
+   mBFlag = true;
    mErrorCount = 0;
    mRestartCount = 0;
    mRxCount = 0;
+   mTxCount = 0;
 }
 
 //******************************************************************************
@@ -143,16 +146,16 @@ restart:
    //***************************************************************************
    //***************************************************************************
    //***************************************************************************
-   // Loop to read string.
+   // Loop to read from port.
 
    while (!BaseClass::mTerminateFlag)
    {
-      Prn::print(Prn::Show4, "%s read start********************************************** %d", mName, mRxCount++);
+      Prn::print(Prn::Show4, "%s read start**********************************************", mName);
 
       //************************************************************************
       //************************************************************************
       //************************************************************************
-      // Read string.
+      // Read from port.
 
       // Blocking poll for read or abort.
       struct pollfd tPollFd[2];
@@ -177,8 +180,8 @@ restart:
          return;
       }
 
-      // Read a string. 
-      tRet = read(mPortFd, mRxBuffer, 200);
+      // Read. 
+      tRet = read(mPortFd, mRxBuffer, cMaxBufferSize);
       if (tRet < 0)
       {
          Prn::print(Prn::Show1, "%s read FAIL", mName);
@@ -189,13 +192,28 @@ restart:
          Prn::print(Prn::Show1, "%s read EMPTY", mName);
          goto restart;
       }
+
+      // No errors.
+      mRxLength = tRet;
+
       // Null terminate.
-      mRxBuffer[tRet] = 0;
+      mRxBuffer[mRxLength] = 0;
 
-      // Print.
-      Prn::print(Prn::Show1, "%s read OUT <<<<<<<<<< %2d %d %s", mName,
-         tRet, my_trimCRLF(mRxBuffer), mRxBuffer);
+      // Metrics.
+      mRxCount++;
 
+      // Print binary.
+      if (mBFlag)
+      {
+         Prn::print(Prn::Show1, "%s read OUT <<<<<<<<<< %2d %3d", mName,
+            mRxCount, mRxLength);
+      }
+      // Print text.
+      else
+      {
+         Prn::print(Prn::Show1, "%s read OUT <<<<<<<<<< %2d %3d T %d %s", mName,
+            mRxCount, mRxLength, my_trimCRLF(mRxBuffer), mRxBuffer);
+      }
    }
 }
 
@@ -255,6 +273,9 @@ void SlaveThread::sendString(const char* aString)
    // Guard.
    if (mPortFd < 0) return;
 
+   // Metrics.
+   mTxCount++;
+
    // Local variables.
    int tNumBytes = strlen(aString);
    int tRet = 0;
@@ -278,10 +299,65 @@ void SlaveThread::sendString(const char* aString)
    // Print.
    char tTxBuffer[100];
    strcpy(tTxBuffer, aString);
-   Prn::print(Prn::Show1, "%s write IN >>>>>>>>>> %2d %d %s", mName,
-      tNumBytes, my_trimCRLF(tTxBuffer), tTxBuffer);
+   Prn::print(Prn::Show1, "%s write IN >>>>>>>>>> %2d %3d T %d %s", mName,
+      mTxCount, tNumBytes, my_trimCRLF(tTxBuffer), tTxBuffer);
 
    return;
+}
+
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+// Send bytes via the usb port.
+
+void SlaveThread::sendBytes(const void* aBytes, int aNumBytes)
+{
+   // Guard.
+   if (mPortFd < 0) return;
+
+   // Metrics.
+   mTxCount++;
+
+   // Local variables.
+   int tRet = 0;
+
+   // Write bytes to the port.
+   tRet = write(mPortFd, aBytes, aNumBytes);
+
+   // Test the return code.
+   if (tRet < 0)
+   {
+      Prn::print(Prn::Show1, "%s write FAIL 101 %d", mName, errno);
+      return;
+   }
+   if (tRet != aNumBytes)
+   {
+      Prn::print(Prn::Show1, "%s write FAIL 102", mName);
+      return;
+   }
+
+   // Print.
+   Prn::print(Prn::Show1, "%s write OUT >>>>>>>>>> %2d %3d", mName,
+      mTxCount, aNumBytes);
+
+   return;
+
+}
+
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+// Send test bytes via the usb port.
+
+void SlaveThread::sendTestBytes(int aNumBytes)
+{
+   // Allocate and fill some bytes.
+   char* tBytes = new char[aNumBytes];
+   for (int i = 0; i < aNumBytes; i++) tBytes[i] = 0x77;
+   // Send the bytes.
+   sendBytes(tBytes, aNumBytes);
+   // Deallocate.
+   delete tBytes;
 }
 
 //******************************************************************************
