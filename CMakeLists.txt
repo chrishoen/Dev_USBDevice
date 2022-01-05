@@ -6,17 +6,19 @@ include(MyCodeMacros.cmake)
 include(MyPostBuild.cmake)
 include(MyGlobalImports.cmake)
 include(MyLocalImports.cmake)
+include(MySpecial.cmake)
 
 project ("Dev_USBDevice")
 my_init_global_import_variables()
 my_init_post_build_variables()
+my_special1()
 
 add_subdirectory ("CommonLib")
+add_subdirectory ("usbslave")
 add_subdirectory ("sgslave")
 return()
 
 add_subdirectory ("usbslave")
-add_subdirectory ("motorcon")
 add_subdirectory ("testlibusb")
 return()
 
